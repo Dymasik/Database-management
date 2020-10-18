@@ -1,0 +1,27 @@
+<div class="row">
+    <form *ngIf="initializedTable" [formGroup]="tableForm" (ngSubmit)="onSave()">
+        <div class="row">
+            <button class="btn btn-primary" type="button" (click)="onAddRow()">Add row</button>
+        </div>
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col" *ngFor="let column of table.structure">{{ column.name }}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody formArrayName="rows">
+                <tr *ngFor="let row of rowControls; let i = index"
+                    [formGroupName]="i">
+                    <td *ngFor="let column of table.structure">
+                        <input class="form-control" [formControlName]="column.name" [type]="getColumnTypeAttribute(column.type)">
+                    </td>
+                    <td>
+                        <button class="btn btn-primary mr-5" type="button" (click)="onSaveRow(i)">Save</button>
+                        <button class="btn btn-danger" type="button" (click)="onDeleteRow(i)">X</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>

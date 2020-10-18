@@ -1,0 +1,121 @@
+{
+  "metadata": [
+    {
+      "name": "Account",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "Contact",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "class",
+          "type": "char"
+        }
+      ]
+    }
+  ],
+  "values": [
+    {
+      "name": "Account",
+      "rows": [
+        {
+          "columns": [
+            {
+              "name": "id",
+              "value": 2
+            },
+            {
+              "name": "name",
+              "value": "asd"
+            },
+            {
+              "name": "id",
+              "value": 3
+            },
+            {
+              "name": "name",
+              "value": "asdasd"
+            }
+          ]
+        },
+        {
+          "columns": [
+            {
+              "name": "id",
+              "value": 2
+            },
+            {
+              "name": "name",
+              "value": "asd"
+            },
+            {
+              "name": "id",
+              "value": 3
+            },
+            {
+              "name": "name",
+              "value": "asdasd"
+            },
+            {
+              "name": "id",
+              "value": 5
+            },
+            {
+              "name": "name",
+              "value": "qwe"
+            }
+          ]
+        },
+        {
+          "columns": [
+            {
+              "name": "id",
+              "value": 2
+            },
+            {
+              "name": "name",
+              "value": "asd"
+            },
+            {
+              "name": "id",
+              "value": 3
+            },
+            {
+              "name": "name",
+              "value": "asdasd"
+            },
+            {
+              "name": "id",
+              "value": 5
+            },
+            {
+              "name": "name",
+              "value": "qwe"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Contact",
+      "rows": []
+    }
+  ]
+}

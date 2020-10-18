@@ -1,0 +1,16 @@
+<div class="row">
+    <button class="btn btn-primary" (click)="onAddTable()">New table</button>
+</div>
+<div class="row">
+    <div class="col-md-5" *ngIf="isConnected">
+        <app-table 
+            *ngFor="let table of tables"
+            [table]="table"
+            [routerLink]="['table-content', table.name]"
+            routerLinkActive="active">
+        </app-table>
+    </div>
+    <div class="col-md-7">
+        <router-outlet></router-outlet>
+    </div>
+</div>
