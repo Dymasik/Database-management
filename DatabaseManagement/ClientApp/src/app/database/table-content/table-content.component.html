@@ -1,7 +1,17 @@
 <div class="row">
     <form *ngIf="initializedTable" [formGroup]="tableForm" (ngSubmit)="onSave()">
         <div class="row">
-            <button class="btn btn-primary" type="button" (click)="onAddRow()">Add row</button>
+            <div class="col-xs-6">
+                <button class="btn btn-primary" type="button" (click)="onAddRow()">Add row</button>
+                <button class="btn btn-warning" type="button" (click)="onAddFilter()">{{ isFilterApplied ? 'Hide filter' : 'Add filter' }}</button>
+            </div>
+            <div class="col-xs-6" *ngIf="isFilterApplied">
+                <select name="columnSelect" id="columnSelect" #filterColumn>
+                    <option *ngFor="let column of table.structure" [value]="column.name">{{ column.name }}</option>
+                </select>
+                <input type="text" #filterValue>
+                <button class="btn btn-dark" (click)="applyFilter()">✓</button>
+            </div>
         </div>
         <table class="table">
             <thead class="thead-dark">

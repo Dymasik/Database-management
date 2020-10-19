@@ -12,6 +12,57 @@ namespace DatabaseManagement.Controllers
     [ApiController]
     public class RowController : ControllerBase
     {
+        [HttpGet]
+        [Route("filter")]
+        public IEnumerable<RowDto> GetFilteredRows(string tableName, string columnName, string value) {
+            var database = Database.GetInstance();
+            var table = database.Where(t => t.Name.Equals(tableName)).FirstOrDefault();
+            if (table != null) {
+                return table.GetFilteredRows(columnName, value).Select(r => r.ToDto());
+            }
+            throw new NotImplementedException();
+        }
+
+        [HttpDelete]
+        [Route("delete")]
+        public void Delete(string tableName, string key) {
+            var database = Database.GetInstance();
+            var table = database.Where(t => t.Name.Equals(tableName)).FirstOrDefault();
+            if (table != null) {
+                var keyColumn = table.GetKeyColumn();
+                if (keyColumn != null) {
+                    var index = table.Rows.Where(r =>
+                    {
+                        return r.Values.Where(v =>
+                        {
+                            var isSelectedRow = false;
+                            switch (v.Column.Type)
+                            {
+                                case ColumnType.INT:
+                                    isSelectedRow = (v as ColumnValue<int>).Value == Convert.ToInt32(key);
+                                    break;
+                                case ColumnType.REAL:
+                                    isSelectedRow = (v as ColumnValue<double>).Value == Convert.ToDouble(key);
+                                    break;
+                                case ColumnType.CHAR:
+                                    isSelectedRow = (v as ColumnValue<char>).Value == Convert.ToChar(key);
+                                    break;
+                                case ColumnType.STRING:
+                                    isSelectedRow = (v as ColumnValue<string>).Value == key;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            return v.Column.IsKey && isSelectedRow;
+
+                        }).Any();
+                    }).Select((r, i) => i).First();
+                    table.Rows.RemoveAt(index);
+                    database.Save();
+                }
+            }
+        }
+
         [HttpPost]
         [Route("save")]
         public void Save(RowRequest request) {
@@ -52,33 +103,39 @@ namespace DatabaseManagement.Controllers
                         }
                     }
                 }
+                if (!isSelectedRow) {
+                    selectedRow = new Row();
+                }
                 foreach (var rowItem in request.Row.values) {
                     var textValue = rowItem.value.ToString();
                     if (isSelectedRow)
                     {
                         foreach (var columnValue in selectedRow.Values)
                         {
-                            switch (columnValue.Column.Type)
+                            if (columnValue.Column.Name.Equals(rowItem.column.name))
                             {
-                                case ColumnType.INT:
-                                    (columnValue as ColumnValue<int>).Value = Convert.ToInt32(textValue);
-                                    break;
-                                case ColumnType.REAL:
-                                    (columnValue as ColumnValue<double>).Value = Convert.ToDouble(textValue);
-                                    break;
-                                case ColumnType.CHAR:
-                                    (columnValue as ColumnValue<char>).Value = Convert.ToChar(textValue);
-                                    break;
-                                case ColumnType.STRING:
-                                    (columnValue as ColumnValue<string>).Value = textValue;
-                                    break;
-                                default:
-                                    break;
+                                switch (columnValue.Column.Type)
+                                {
+                                    case ColumnType.INT:
+                                        (columnValue as ColumnValue<int>).Value = Convert.ToInt32(textValue);
+                                        break;
+                                    case ColumnType.REAL:
+                                        (columnValue as ColumnValue<double>).Value = Convert.ToDouble(textValue);
+                                        break;
+                                    case ColumnType.CHAR:
+                                        (columnValue as ColumnValue<char>).Value = Convert.ToChar(textValue);
+                                        break;
+                                    case ColumnType.STRING:
+                                        (columnValue as ColumnValue<string>).Value = textValue;
+                                        break;
+                                    default:
+                                        break;
+                                }
                             }
                         }
                     }
                     else {
-                        var column = new Column(rowItem.column.name, rowItem.column.type);
+                        var column = table.GetColumnByName(rowItem.column.name);
                         switch (rowItem.column.type)
                         {
                             case ColumnType.INT:

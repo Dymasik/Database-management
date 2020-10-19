@@ -9,6 +9,7 @@ namespace DatabaseManagement.Models
     {
         public string Name { get; private set; }
         public ColumnType Type { get; private set; }
+        public bool IsKey { get; set; }
 
         public Column(string name, ColumnType type) => (Name, Type) = (name, type);
 

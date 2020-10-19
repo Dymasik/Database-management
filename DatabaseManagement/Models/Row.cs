@@ -20,7 +20,8 @@ namespace DatabaseManagement.Models
             {
                 var columnDto = new ColumnDto { 
                     name = value.Column.Name,
-                    type = value.Column.Type
+                    type = value.Column.Type,
+                    isKey = value.Column.IsKey
                 };
                 var columnValueDto = new ColumnValueDto { 
                     column = columnDto

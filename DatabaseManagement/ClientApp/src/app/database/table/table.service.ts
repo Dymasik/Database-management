@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { map } from 'rxjs/operators';
@@ -26,6 +26,16 @@ export class TableService {
         return this.http.get<Table>(this.baseUrl + 'table/' + name);
     }
 
+    getFilteredRows(tableName: string, columnName: string, value: string) {
+        let params = new HttpParams();
+        params = params.append("tableName", tableName);
+        params = params.append("columnName", columnName);
+        params = params.append("value", value);
+        return this.http.get<Row[]>(this.baseUrl + 'row/filter', {
+            params: params
+        })
+    }
+
     saveRow(row: Row, table: Table) {
         return this.http.post(this.baseUrl + 'row/save', {
             TableName: table.name,
@@ -34,9 +44,11 @@ export class TableService {
     }
 
     deleteRow(row: Row, table: Table) {
-        return this.http.post(this.baseUrl + 'row/delete', {
-            TableName: table.name,
-            Row: row
+        let params = new HttpParams();
+        params = params.append("tableName", table.name);
+        params = params.append("key", row.keyValue);
+        return this.http.delete(this.baseUrl + 'row/delete', {
+            params: params
         });
     }
 }

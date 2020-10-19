@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ColumnType } from 'src/app/shared/column-type.enum';
@@ -15,9 +15,16 @@ import { TableService } from '../table/table.service';
 export class TableContentComponent implements OnInit {
 
   private tableName: string;
+  @ViewChild('filterColumn', {
+    static: false
+  }) filterColumnEl: ElementRef<HTMLSelectElement>;
+  @ViewChild('filterValue', {
+    static: false
+  }) filterValueEl: ElementRef<HTMLInputElement>;
   table: Table;
   tableForm: FormGroup;
   initializedTable: boolean = false;
+  isFilterApplied: boolean = false;
 
   constructor(private route: ActivatedRoute,
               private tableService: TableService) { }
@@ -54,6 +61,23 @@ export class TableContentComponent implements OnInit {
       'rows': rows
     });
     this.initializedTable = true;
+  }
+
+  onAddFilter() {
+    if (this.isFilterApplied) {
+      this.initTable();
+    }
+    this.isFilterApplied = !this.isFilterApplied;
+  }
+
+  applyFilter() {
+    let filterColumn = this.filterColumnEl.nativeElement.value;
+    let filterValue = this.filterValueEl.nativeElement.value;
+    this.tableService.getFilteredRows(this.table.name, filterColumn, filterValue)
+      .subscribe(rows => {
+        this.table.rows = rows;
+        this.initTableForm();
+      });
   }
 
   onSave() {}
@@ -97,7 +121,9 @@ export class TableContentComponent implements OnInit {
   onDeleteRow(index: number) {
     var row = this.getRow(index);
     this.tableService.deleteRow(row, this.table)
-      .subscribe();
+      .subscribe(() => {
+        (this.tableForm.get('rows') as FormArray).removeAt(index);
+      });
   }
 
   getColumnTypeAttribute(type: number) {

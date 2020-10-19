@@ -35,6 +35,9 @@ namespace DatabaseManagement.Models
                         columnMeta.Add("name", column.Name);
                         columnMeta.Add("type", ColumnTypeExtensions.GetStringValue(column.Type));
                         columnsMeta.Add(columnMeta);
+                        if (column.IsKey) {
+                            tableMeta.Add("keyColumnName", column.Name);
+                        }
                     }
                     tableMeta.Add("columns", columnsMeta);
 
@@ -93,6 +96,7 @@ namespace DatabaseManagement.Models
                         if (tableObj is JObject tableMetadata)
                         {
                             var tableName = tableMetadata.Value<string>("name");
+                            var keyColumnName = tableMetadata.Value<string>("keyColumnName");
                             var table = new Table(tableName);
                             var columnsMeta = tableMetadata.Value<JArray>("columns");
                             foreach (var columnObj in columnsMeta)
@@ -101,7 +105,7 @@ namespace DatabaseManagement.Models
                                 {
                                     var columnName = columnMetadata.Value<string>("name");
                                     var columnType = columnMetadata.Value<string>("type");
-                                    table.AddColumn(columnName, ColumnTypeExtensions.GetValue(columnType));
+                                    table.AddColumn(columnName, ColumnTypeExtensions.GetValue(columnType), keyColumnName.Equals(columnName));
                                 }
                             }
                             AddTable(table);

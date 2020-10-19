@@ -2,6 +2,7 @@
   "metadata": [
     {
       "name": "Account",
+      "keyColumnName": "id",
       "columns": [
         {
           "name": "id",
@@ -15,6 +16,7 @@
     },
     {
       "name": "Contact",
+      "keyColumnName": "id",
       "columns": [
         {
           "name": "id",
@@ -39,19 +41,11 @@
           "columns": [
             {
               "name": "id",
-              "value": 2
-            },
-            {
-              "name": "name",
-              "value": "asd"
-            },
-            {
-              "name": "id",
               "value": 3
             },
             {
               "name": "name",
-              "value": "asdasd"
+              "value": "asd"
             }
           ]
         },
@@ -59,51 +53,7 @@
           "columns": [
             {
               "name": "id",
-              "value": 2
-            },
-            {
-              "name": "name",
-              "value": "asd"
-            },
-            {
-              "name": "id",
-              "value": 3
-            },
-            {
-              "name": "name",
-              "value": "asdasd"
-            },
-            {
-              "name": "id",
-              "value": 5
-            },
-            {
-              "name": "name",
-              "value": "qwe"
-            }
-          ]
-        },
-        {
-          "columns": [
-            {
-              "name": "id",
-              "value": 2
-            },
-            {
-              "name": "name",
-              "value": "asd"
-            },
-            {
-              "name": "id",
-              "value": 3
-            },
-            {
-              "name": "name",
-              "value": "asdasd"
-            },
-            {
-              "name": "id",
-              "value": 5
+              "value": 4
             },
             {
               "name": "name",

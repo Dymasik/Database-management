@@ -24,6 +24,7 @@ namespace DatabaseManagement.Models
     {
         public string name { get; set; }
         public ColumnType type { get; set; }
+        public bool isKey { get; set; }
     }
 
     public class TableDto {
