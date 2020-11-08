@@ -1,6 +1,12 @@
+using DatabaseManagement.Models.Graphql;
+using GraphiQl;
+using GraphQL;
+using GraphQL.Http;
+using GraphQL.Server;
+using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,12 +26,40 @@ namespace DatabaseManagement
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
             services.AddControllersWithViews();
+            services.AddSingleton<IDocumentWriter, DocumentWriter>();
+            services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/dist";
             });
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
+            services.AddScoped<IDependencyResolver>(x =>
+                new FuncDependencyResolver(x.GetRequiredService));
+
+            services.AddScoped<DatabaseSchema>();
+
+            services.AddGraphQL(x =>
+            {
+                x.ExposeExceptions = true; //set true only in development mode. make it switchable.
+            })
+            .AddGraphTypes(ServiceLifetime.Scoped);
+
+            //services.AddSingleton<TableType>();
+            //services.AddSingleton<RowType>();
+            //services.AddSingleton<ColumnValueType>();
+            //services.AddSingleton<ColumnGraphType>();
+            //services.AddSingleton<ColumnTypeEnum>();
+            //services.AddTransient<ISchema, DatabaseSchema>();
+            //services.AddTransient<DatabaseQuery>();
+            //var sp = services.BuildServiceProvider();
+            //services.AddSingleton<ISchema>(new DatabaseSchema(new FuncDependencyResolver(type => sp.GetService(type))));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,8 +82,9 @@ namespace DatabaseManagement
             {
                 app.UseSpaStaticFiles();
             }
-
+            app.UseGraphQL<DatabaseSchema>();
             app.UseRouting();
+            //app.UseGraphiQl("/graphql");
 
             app.UseEndpoints(endpoints =>
             {
@@ -70,6 +105,8 @@ namespace DatabaseManagement
                     spa.UseAngularCliServer(npmScript: "start");
                 }
             });
+
+            
         }
     }
 }

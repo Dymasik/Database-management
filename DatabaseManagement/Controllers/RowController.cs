@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using DatabaseManagement.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace DatabaseManagement.Controllers
 {
@@ -12,19 +14,36 @@ namespace DatabaseManagement.Controllers
     [ApiController]
     public class RowController : ControllerBase
     {
+        private readonly IUrlHelper _urlHelper;
+
+        public IUrlHelperFactory UrlHelperFactory { get; }
+        public IActionContextAccessor ActionContextAccessor { get; }
+
+        public RowController(IUrlHelperFactory urlHelperFactory,
+                           IActionContextAccessor actionContextAccessor)
+        {
+            UrlHelperFactory = urlHelperFactory;
+            ActionContextAccessor = actionContextAccessor;
+        }
+
         [HttpGet]
-        [Route("filter")]
+        [Route("filter", Name = nameof(GetFilteredRows))]
         public IEnumerable<RowDto> GetFilteredRows(string tableName, string columnName, string value) {
             var database = Database.GetInstance();
             var table = database.Where(t => t.Name.Equals(tableName)).FirstOrDefault();
             if (table != null) {
-                return table.GetFilteredRows(columnName, value).Select(r => r.ToDto());
+                var rows = table.GetFilteredRows(columnName, value).Select(r => r.ToDto()).ToArray();
+                foreach (var row in rows)
+                {
+                    row.AddLink(UrlHelperFactory, ActionContextAccessor, tableName, columnName, value);
+                }
+                return rows;
             }
             throw new NotImplementedException();
         }
 
         [HttpDelete]
-        [Route("delete")]
+        [Route("delete", Name = nameof(Delete))]
         public void Delete(string tableName, string key) {
             var database = Database.GetInstance();
             var table = database.Where(t => t.Name.Equals(tableName)).FirstOrDefault();
@@ -64,7 +83,7 @@ namespace DatabaseManagement.Controllers
         }
 
         [HttpPost]
-        [Route("save")]
+        [Route("save", Name = nameof(Save))]
         public void Save(RowRequest request) {
             var database = Database.GetInstance();
             var table = database.Where(t => t.Name.Equals(request.TableName)).FirstOrDefault();

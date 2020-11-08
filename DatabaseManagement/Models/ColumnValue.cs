@@ -9,5 +9,10 @@ namespace DatabaseManagement.Models
     {
         public T Value { get; set; }
         public Column Column { get; set; }
+
+        public string GetValue()
+        {
+            return Value.ToString();
+        }
     }
 }

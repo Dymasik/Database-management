@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using DatabaseManagement.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace DatabaseManagement.Controllers
 {
@@ -12,19 +14,37 @@ namespace DatabaseManagement.Controllers
     [ApiController]
     public class TableController : ControllerBase
     {
-        [HttpGet]
+
+        public TableController(IUrlHelperFactory urlHelperFactory,
+                           IActionContextAccessor actionContextAccessor)
+        {
+            UrlHelperFactory = urlHelperFactory;
+            ActionContextAccessor = actionContextAccessor;
+        }
+
+        public IUrlHelperFactory UrlHelperFactory { get; }
+        public IActionContextAccessor ActionContextAccessor { get; }
+
+        [HttpGet(Name = nameof(Get))]
         public IEnumerable<TableDto> Get()
         {
             var database = Database.GetInstance();
             database.LoadTables();
-            return database.Select(t => t.ToDto());
+            var tables = database.Select(t => t.ToDto()).ToArray();
+            for (int i = 0; i < tables.Length; i++)
+            {
+                tables[i].Links = tables[i].CreateLinks(UrlHelperFactory, ActionContextAccessor);
+            }
+            return tables;
         }
 
-        [HttpGet("{name}")]
+        [HttpGet("{name}", Name = nameof(GetTable))]
         public TableDto GetTable(string name)
         {
             var database = Database.GetInstance();
-            return database.Where(t => t.Name.Equals(name)).FirstOrDefault()?.ToDto();
+            var table = database.Where(t => t.Name.Equals(name)).FirstOrDefault()?.ToDto();
+            table.Links = table.CreateLinks(UrlHelperFactory, ActionContextAccessor);
+            return table;
         }
     }
 }
